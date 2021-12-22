@@ -1,6 +1,6 @@
-# Chat App
+# Chat App API
 
 ## Development
 
 npm install
-npm run dev
+npm start
