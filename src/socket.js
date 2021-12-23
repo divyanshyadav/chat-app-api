@@ -32,11 +32,6 @@ module.exports = function (io) {
 			fn();
 		});
 
-		socket.on("user disconnected", (user) => {
-			log(socket, "disconnected");
-			socket.broadcast.emit("user disconnected", user);
-		});
-
 		socket.on("disconnect", () => {
 			log(socket, "disconnected");
 			socket.broadcast.emit("user disconnected", socket.user);
