@@ -1,4 +1,5 @@
 const MessageStore = require("./utils/message-store");
+const { log } = require("./utils/logger");
 
 const messageStore = new MessageStore();
 module.exports = function (io) {
@@ -13,12 +14,10 @@ module.exports = function (io) {
 	});
 
 	io.on("connection", (socket) => {
-		console.log(
-			`${socket.id} ${socket.user.id} ${socket.user.username} connected`
-		);
+		log(socket, "connected");
 
 		socket.emit("users", getAllConnectedUsers(io));
-		socket.emit("conversations", getConversations(socket.user.id));
+		socket.emit("conversations", messageStore.getConversations(socket.user.id));
 
 		socket.broadcast.emit("user connected", socket.user);
 
@@ -34,7 +33,13 @@ module.exports = function (io) {
 		});
 
 		socket.on("user disconnected", (user) => {
+			log(socket, "disconnected");
 			socket.broadcast.emit("user disconnected", user);
+		});
+
+		socket.on("disconnect", () => {
+			log(socket, "disconnected");
+			socket.broadcast.emit("user disconnected", socket.user);
 		});
 	});
 };
@@ -52,23 +57,6 @@ function getAllConnectedUsers(io) {
 	}
 
 	return users;
-}
-
-function getConversations(userId) {
-	const messages = messageStore.getMessages(userId);
-	const conversations = {};
-
-	messages.forEach((message) => {
-		const { from, to } = message;
-		const otherUserId = from === userId ? to : from;
-		if (!conversations[otherUserId]) {
-			conversations[otherUserId] = [];
-		}
-
-		conversations[otherUserId].push(message);
-	});
-
-	return conversations;
 }
 
 function getUserSockets(io, id, excludeSocket) {
