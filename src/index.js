@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const registerUserHandlers = require("./userHandler");
 
-const PORT = 3000 || process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 // Setup express
 const app = express();
@@ -26,6 +26,10 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
 	registerUserHandlers(io, socket);
+});
+
+app.get("/", (req, res) => {
+	res.send("Chat server is running for dummies..");
 });
 
 server.listen(PORT, () => {

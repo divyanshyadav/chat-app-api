@@ -4,13 +4,14 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"start": "node src/index",
+		"start": "cross-env PORT=80 node src/index",
 		"start:dev": "nodemon src/index"
 	},
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
 		"cors": "^2.8.5",
+		"cross-env": "^7.0.3",
 		"express": "^4.17.1",
 		"moment": "^2.29.1",
 		"socket.io": "^4.4.0"
