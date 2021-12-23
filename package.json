@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"start": "cross-env PORT=80 node src/index",
+		"start": "node src/index",
 		"start:dev": "nodemon src/index"
 	},
 	"author": "",
