@@ -1,15 +1,18 @@
 const MessageStore = require("./utils/message-store");
 const { log } = require("./utils/logger");
+const UserStore = require("./utils/user-store");
 
 const messageStore = new MessageStore();
+const userStore = new UserStore();
 
 module.exports = function registerUserHandlers(io, socket) {
 	log(socket, "connected");
-
+	userStore.add(socket.user);
+	userStore.setOnline(socket.user.id);
 	// Emit info
-	socket.emit("users", getAllConnectedUsers());
+	socket.emit("users", userStore.getUsers());
 	socket.emit("conversations", messageStore.getConversations(socket.user.id));
-	socket.broadcast.emit("user connected", socket.user);
+	socket.broadcast.emit("user connected", userStore.getUser(socket.user.id));
 
 	// Listen for events
 	socket.on("private message", onMessage);
@@ -17,7 +20,8 @@ module.exports = function registerUserHandlers(io, socket) {
 
 	function onDisconnect() {
 		log(socket, "disconnected");
-		socket.broadcast.emit("user disconnected", socket.user);
+		userStore.setOffline(socket.user.id);
+		socket.broadcast.emit("user disconnected", userStore.getUser(socket.user.id));
 	}
 
 	function onMessage(message, callback) {
@@ -29,21 +33,6 @@ module.exports = function registerUserHandlers(io, socket) {
 		fromSockets.forEach((s) => s.emit("same private message", message));
 		messageStore.addMessage(message);
 		callback();
-	}
-
-	// Utils functions
-	function getAllConnectedUsers() {
-		const users = [];
-		const set = new Set();
-
-		for (let [_, socket] of io.of("/").sockets) {
-			if (!set.has(socket.user.id)) {
-				users.push(socket.user);
-				set.add(socket.user.id);
-			}
-		}
-
-		return users;
 	}
 
 	function getUserSockets(id, excludeSocket) {
