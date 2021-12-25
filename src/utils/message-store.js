@@ -1,20 +1,44 @@
+const client = require("../utils/mongodb");
+
 class MessageStore {
 	constructor() {
-		this.messages = [];
+		this.messages = client.db("chat-app-db").collection("messages");
 	}
 
 	addMessage(message) {
-		this.messages.push(message);
+		return new Promise((resolve, reject) => {
+			this.messages.insertOne(message, (err, result) => {
+				if (err) {
+					console.error(err);
+					reject(err);
+					return;
+				}
+
+				console.log(result);
+				resolve(result);
+			});
+		});
 	}
 
 	getMessages(userId) {
-		return this.messages.filter(
-			(message) => message.to === userId || message.from === userId
-		);
+		return new Promise((resolve, reject) => {
+			this.messages
+				.find({ $or: [{ from: userId }, { to: userId }] })
+				.toArray((err, docs) => {
+					if (err) {
+						console.error(err);
+						reject(err);
+						return;
+					}
+
+					console.log(docs);
+					resolve(docs);
+				});
+		});
 	}
 
-	getConversations(userId) {
-		const messages = this.getMessages(userId);
+	async getConversations(userId) {
+		const messages = await this.getMessages(userId);
 		const conversations = {};
 
 		messages.forEach((message) => {

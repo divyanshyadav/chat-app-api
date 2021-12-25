@@ -1,40 +1,100 @@
+const client = require("../utils/mongodb");
+
 class UserStore {
 	constructor() {
-		this.users = [];
+		this.users = client.db("chat-app-db").collection("users");
 	}
 
 	add(user) {
-		if (this.users.find((u) => u.id === user.id)) {
-			return;
-		}
+		return new Promise((resolve, reject) => {
+			this.users.findOne({ id: user.id }, (err, docs) => {
+				if (err) {
+					console.error(err);
+					reject(err);
+					return;
+				}
 
-		this.users.push({ ...user });
+				if (docs !== null) {
+					resolve(docs);
+					return;
+				}
+
+				this.users.insertOne(user, (err, result) => {
+					if (err) {
+						console.error(err);
+						reject(err);
+						return;
+					}
+
+					console.log(result);
+					resolve(result);
+				});
+			});
+		});
 	}
 
 	setOnline(userId) {
-		const user = this.getUser(userId);
-		if (!user) {
-			return;
-		}
+		return new Promise((resolve, reject) => {
+			this.users.updateOne(
+				{ id: userId },
+				{ $set: { status: "online" } },
+				(err, result) => {
+					if (err) {
+						reject(err);
+						console.error(err);
+						return;
+					}
 
-		user.status = "online";
+					console.log(result);
+					resolve(result);
+				}
+			);
+		});
 	}
 
 	setOffline(userId) {
-		const user = this.getUser(userId);
-		if (!user) {
-			return;
-		}
+		return new Promise((resolve, reject) => {
+			this.users.updateOne(
+				{ id: userId },
+				{ $set: { status: "offline" } },
+				(err, result) => {
+					if (err) {
+						reject(err);
+						console.error(err);
+						return;
+					}
 
-		user.status = "offline";
+					console.log(result);
+					resolve(result);
+				}
+			);
+		});
 	}
 
 	getUser(userId) {
-		return this.users.find((u) => u.id === userId);
+		return new Promise((resolve, reject) => {
+			this.users.findOne({ id: userId }, (err, result) => {
+				if (err) {
+					reject(err);
+					return;
+				}
+
+				resolve(result);
+			});
+		});
 	}
 
 	getUsers() {
-		return this.users;
+		return new Promise((resolve, reject) => {
+			this.users.find({}).toArray((err, result) => {
+				if (err) {
+					reject(err);
+					return;
+				}
+
+				resolve(result);
+			});
+		});
 	}
 }
 
