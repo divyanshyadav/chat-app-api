@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 require("dotenv").config();
 const registerUserHandlers = require("./userHandler");
-const mongoClient = require("./utils/mongodb");
+const { client } = require("./utils/mongodb");
 
 const PORT = process.env.PORT || 3000;
 
@@ -34,7 +34,7 @@ app.get("/", (req, res) => {
 	res.send("Chat server is running for dummies..");
 });
 
-mongoClient.connect((err) => {
+client.connect((err) => {
 	if (err) {
 		console.error(err);
 		return;

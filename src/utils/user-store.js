@@ -1,8 +1,8 @@
-const client = require("../utils/mongodb");
+const { db } = require("../utils/mongodb");
 
 class UserStore {
 	constructor() {
-		this.users = client.db("chat-app-db").collection("users");
+		this.users = db.collection("users");
 	}
 
 	add(user) {

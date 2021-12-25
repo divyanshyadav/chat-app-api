@@ -1,8 +1,8 @@
-const client = require("../utils/mongodb");
+const { db } = require("../utils/mongodb");
 
 class MessageStore {
 	constructor() {
-		this.messages = client.db("chat-app-db").collection("messages");
+		this.messages = db.collection("messages");
 	}
 
 	addMessage(message) {
