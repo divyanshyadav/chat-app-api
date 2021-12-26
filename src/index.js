@@ -1,9 +1,12 @@
+require("dotenv").config();
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-require("dotenv").config();
-const registerUserHandlers = require("./userHandler");
+
+const registerUserHandlers = require("./handlers/userHandler");
+const registerMessageHandlers = require("./handlers/messageHandler");
+
 const { client } = require("./utils/mongodb");
 
 const PORT = process.env.PORT || 3000;
@@ -28,6 +31,7 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
 	registerUserHandlers(io, socket);
+	registerMessageHandlers(io, socket);
 });
 
 app.get("/", (req, res) => {
