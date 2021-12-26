@@ -1,4 +1,3 @@
-const MessageStore = require("../utils/message-store");
 const { log } = require("../utils/logger");
 const UserStore = require("../utils/user-store");
 
@@ -16,7 +15,6 @@ module.exports = async function registerUserHandlers(io, socket) {
 		await userStore.getUser(socket.user.id)
 	);
 
-	socket.on("private message", onMessage);
 	socket.on("disconnect", async function () {
 		log(socket, "disconnected");
 		await userStore.setOffline(socket.user.id);

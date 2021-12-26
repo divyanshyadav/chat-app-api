@@ -66,7 +66,6 @@ class MessageStore {
 					return;
 				}
 
-				console.log(docs);
 				resolve(docs);
 			});
 		});
