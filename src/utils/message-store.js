@@ -1,4 +1,7 @@
 const { db } = require("../utils/mongodb");
+const UserStore = require("./user-store");
+
+const userStore = new UserStore();
 
 class MessageStore {
 	constructor() {
@@ -20,25 +23,70 @@ class MessageStore {
 		});
 	}
 
-	getMessages(userId) {
+	updateMessage(message) {
 		return new Promise((resolve, reject) => {
-			this.messages
-				.find({ $or: [{ from: userId }, { to: userId }] })
-				.toArray((err, docs) => {
+			this.messages.updateOne(
+				{ id: message.id },
+				{ $set: message },
+				(err, result) => {
 					if (err) {
 						console.error(err);
 						reject(err);
 						return;
 					}
 
-					console.log(docs);
-					resolve(docs);
-				});
+					console.log(result);
+					resolve(result);
+				}
+			);
 		});
 	}
 
+	updateMessages(condition, update) {
+		return new Promise((resolve, reject) => {
+			this.messages.updateMany(condition, update, (err, result) => {
+				if (err) {
+					console.error(err);
+					reject(err);
+					return;
+				}
+
+				console.log(result);
+				resolve(result);
+			});
+		});
+	}
+
+	getMessages(condition) {
+		return new Promise((resolve, reject) => {
+			this.messages.find(condition).toArray((err, docs) => {
+				if (err) {
+					console.error(err);
+					reject(err);
+					return;
+				}
+
+				console.log(docs);
+				resolve(docs);
+			});
+		});
+	}
+
+	setReachedToUser(userId, reached = true) {
+		return this.updateMessages(
+			{ to: userId, reachedToUser: false },
+			{ $set: { reachedToUser: reached } }
+		);
+	}
+
+	getUnReachedMessages(userId) {
+		return this.getMessages({ to: userId, reachedToUser: false });
+	}
+
 	async getConversations(userId) {
-		const messages = await this.getMessages(userId);
+		const messages = await this.getMessages({
+			$or: [{ from: userId }, { to: userId }],
+		});
 		const conversations = {};
 
 		messages.forEach((message) => {

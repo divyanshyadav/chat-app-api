@@ -11,10 +11,22 @@ module.exports = async function registerUserHandlers(io, socket) {
 	await userStore.setOnline(socket.user.id);
 	// Emit info
 	socket.emit("users", await userStore.getUsers());
+	const unReachedMessages = await messageStore.getUnReachedMessages(
+		socket.user.id
+	);
+	await messageStore.setReachedToUser(socket.user.id);
 	socket.emit(
 		"conversations",
 		await messageStore.getConversations(socket.user.id)
 	);
+
+	unReachedMessages.forEach((m) => {
+		const sockets = getUserSockets(m.from);
+		sockets.forEach((s) =>
+			s.emit("private message reached to user", { ...m, reachedToUser: true })
+		);
+	});
+
 	socket.broadcast.emit(
 		"user connected",
 		await userStore.getUser(socket.user.id)
@@ -23,6 +35,13 @@ module.exports = async function registerUserHandlers(io, socket) {
 	// Listen for events
 	socket.on("private message", onMessage);
 	socket.on("disconnect", onDisconnect);
+	socket.on("private message reached to user", (message) => {
+		messageStore.updateMessage(message);
+		const fromSockets = getUserSockets(message.from);
+		fromSockets.forEach((socket) => {
+			socket.emit("private message reached to user", message);
+		});
+	});
 
 	async function onDisconnect() {
 		log(socket, "disconnected");
@@ -38,10 +57,11 @@ module.exports = async function registerUserHandlers(io, socket) {
 		const toSockets = getUserSockets(to);
 		const fromSockets = getUserSockets(from, socket);
 
+		message.reachedToServer = true;
+		await messageStore.addMessage(message);
 		toSockets.forEach((s) => s.emit("private message", message));
 		fromSockets.forEach((s) => s.emit("same private message", message));
-		await messageStore.addMessage(message);
-		callback();
+		callback(message);
 	}
 
 	function getUserSockets(id, excludeSocket) {
