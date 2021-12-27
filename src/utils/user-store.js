@@ -36,7 +36,6 @@ class UserStore {
 						return;
 					}
 
-					console.log(result);
 					resolve(result);
 				}
 			);
@@ -55,7 +54,6 @@ class UserStore {
 						return;
 					}
 
-					console.log(result);
 					resolve(result);
 				}
 			);

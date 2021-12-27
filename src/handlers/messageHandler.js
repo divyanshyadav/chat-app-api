@@ -43,4 +43,22 @@ module.exports = async function registerMessageHandlers(io, socket) {
 		fromSockets.forEach((s) => s.emit("update private message", message));
 		callback(message);
 	});
+
+	socket.on("message seen by user", (m) => {
+		const fromSockets = getUserSockets(io, m.from);
+		const toSockets = getUserSockets(io, m.to);
+
+		const updatedMessage = {
+			...m,
+			seenByUser: true,
+		};
+
+		messageStore.updateMessage(updatedMessage);
+
+		toSockets.forEach((s) =>
+			s.emit("update message seen by user", updatedMessage)
+		);
+
+		fromSockets.forEach((s) => s.emit("message seen by user", updatedMessage));
+	});
 };

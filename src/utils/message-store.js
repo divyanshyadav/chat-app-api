@@ -14,7 +14,6 @@ class MessageStore {
 					return;
 				}
 
-				console.log(result);
 				resolve(result);
 			});
 		});
@@ -33,7 +32,6 @@ class MessageStore {
 						return;
 					}
 
-					console.log(result);
 					resolve(result);
 				}
 			);
@@ -49,7 +47,6 @@ class MessageStore {
 					return;
 				}
 
-				console.log(result);
 				resolve(result);
 			});
 		});
