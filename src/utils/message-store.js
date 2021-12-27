@@ -1,6 +1,4 @@
 const { db } = require("../utils/mongodb");
-const userStore = require("./user-store");
-
 class MessageStore {
 	constructor() {
 		this.messages = db.collection("messages");
@@ -9,6 +7,7 @@ class MessageStore {
 	addMessage(message) {
 		return new Promise((resolve, reject) => {
 			this.messages.insertOne(message, (err, result) => {
+				console.log(message, err, result);
 				if (err) {
 					console.error(err);
 					reject(err);
@@ -23,6 +22,7 @@ class MessageStore {
 
 	updateMessage(message) {
 		return new Promise((resolve, reject) => {
+			delete message._id;
 			this.messages.updateOne(
 				{ id: message.id },
 				{ $set: message },
