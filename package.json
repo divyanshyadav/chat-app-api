@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"start": "node src/index",
-		"start:dev": "nodemon src/index"
+		"start:dev": "cross-env DEBUG=socket* nodemon src/index"
 	},
 	"author": "",
 	"license": "ISC",
