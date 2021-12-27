@@ -1,7 +1,5 @@
-const MessageStore = require("../utils/message-store");
+const messageStore = require("../utils/message-store");
 const { getUserSockets } = require("../utils/socketUtils");
-
-const messageStore = new MessageStore();
 
 module.exports = async function registerMessageHandlers(io, socket) {
 	const unReachedMessages = await messageStore.getUnReachedMessages(
@@ -10,15 +8,19 @@ module.exports = async function registerMessageHandlers(io, socket) {
 
 	await messageStore.setReachedToUser(socket.user.id);
 
-	socket.emit(
-		"conversations",
-		await messageStore.getConversations(socket.user.id)
-	);
-
 	unReachedMessages.forEach((m) => {
-		const sockets = getUserSockets(io, m.from);
-		sockets.forEach((s) =>
+		const fromSockets = getUserSockets(io, m.from);
+		const toSockets = getUserSockets(io, m.to);
+
+		fromSockets.forEach((s) =>
 			s.emit("private message reached to user", { ...m, reachedToUser: true })
+		);
+
+		toSockets.forEach((s) =>
+			s.emit("update private message reached to user", {
+				...m,
+				reachedToUser: true,
+			})
 		);
 	});
 
@@ -38,7 +40,7 @@ module.exports = async function registerMessageHandlers(io, socket) {
 		message.reachedToServer = true;
 		await messageStore.addMessage(message);
 		toSockets.forEach((s) => s.emit("private message", message));
-		fromSockets.forEach((s) => s.emit("same private message", message));
+		fromSockets.forEach((s) => s.emit("update private message", message));
 		callback(message);
 	});
 };

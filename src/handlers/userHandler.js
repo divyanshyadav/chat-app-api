@@ -1,15 +1,11 @@
 const { log } = require("../utils/logger");
-const UserStore = require("../utils/user-store");
-
-const userStore = new UserStore();
+const userStore = require("../utils/user-store");
 
 module.exports = async function registerUserHandlers(io, socket) {
 	log(socket, "connected");
 
-	await userStore.add(socket.user);
 	await userStore.setOnline(socket.user.id);
 
-	socket.emit("users", await userStore.getUsers());
 	socket.broadcast.emit(
 		"user connected",
 		await userStore.getUser(socket.user.id)

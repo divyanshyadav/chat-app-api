@@ -7,29 +7,20 @@ class UserStore {
 
 	add(user) {
 		return new Promise((resolve, reject) => {
-			this.users.findOne({ id: user.id }, (err, docs) => {
-				if (err) {
-					console.error(err);
-					reject(err);
-					return;
-				}
-
-				if (docs !== null) {
-					resolve(docs);
-					return;
-				}
-
-				this.users.insertOne(user, (err, result) => {
+			this.users.updateOne(
+				{ id: user.id },
+				{ $set: user },
+				{ upsert: true },
+				(err, docs) => {
 					if (err) {
 						console.error(err);
 						reject(err);
 						return;
 					}
 
-					console.log(result);
-					resolve(result);
-				});
-			});
+					resolve(docs);
+				}
+			);
 		});
 	}
 
@@ -98,4 +89,4 @@ class UserStore {
 	}
 }
 
-module.exports = UserStore;
+module.exports = new UserStore();

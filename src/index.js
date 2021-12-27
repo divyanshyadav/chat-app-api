@@ -3,6 +3,9 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const bodyParser = require("body-parser");
+
+const usersRouter = require("./routes/users.routes");
 
 const registerUserHandlers = require("./handlers/userHandler");
 const registerMessageHandlers = require("./handlers/messageHandler");
@@ -14,6 +17,7 @@ const PORT = process.env.PORT || 3000;
 // Setup express
 const app = express();
 app.use(cors({ origin: "*" }));
+app.use(bodyParser.json());
 
 // Setup socket.io
 const server = http.createServer(app);
@@ -37,6 +41,8 @@ io.on("connection", (socket) => {
 app.get("/", (req, res) => {
 	res.send("Chat server is running for dummies..");
 });
+
+app.use("/users", usersRouter);
 
 client.connect((err) => {
 	if (err) {

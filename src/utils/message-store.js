@@ -1,7 +1,5 @@
 const { db } = require("../utils/mongodb");
-const UserStore = require("./user-store");
-
-const userStore = new UserStore();
+const userStore = require("./user-store");
 
 class MessageStore {
 	constructor() {
@@ -102,4 +100,4 @@ class MessageStore {
 	}
 }
 
-module.exports = MessageStore;
+module.exports = new MessageStore();
