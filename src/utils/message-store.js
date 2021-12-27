@@ -7,7 +7,6 @@ class MessageStore {
 	addMessage(message) {
 		return new Promise((resolve, reject) => {
 			this.messages.insertOne(message, (err, result) => {
-				console.log(message, err, result);
 				if (err) {
 					console.error(err);
 					reject(err);
