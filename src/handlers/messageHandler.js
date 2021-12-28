@@ -63,7 +63,7 @@ module.exports = function registerMessageHandlers(io, socket) {
 			message.reachedToServer = true;
 			await messageStore.updateMessage(message);
 			toSockets.forEach((s) => s.emit("private message", message));
-			fromSockets.forEach((s) => s.emit("update private message", message));
+			fromSockets.forEach((s) => s.emit("update private message again", message));
 		});
 	});
 
