@@ -8,7 +8,7 @@ module.exports = function registerUserHandlers(io, socket) {
 		log(socket, "disconnected");
 		await userStore.setOffline(socket.user.id);
 		socket.broadcast.emit(
-			"user disconnected",
+			"user disconnect",
 			await userStore.getUser(socket.user.id)
 		);
 	});
@@ -17,7 +17,7 @@ module.exports = function registerUserHandlers(io, socket) {
 
 	setTimeout(async function () {
 		socket.broadcast.emit(
-			"user connected",
+			"user connect",
 			await userStore.getUser(socket.user.id)
 		);
 	}, 0);
