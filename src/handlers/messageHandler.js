@@ -32,19 +32,9 @@ module.exports = function registerMessageHandlers(io, socket) {
 
 	messageStore.getUnReachedMessages(socket.user.id).then((messages) => {
 		messages.forEach(async (message) => {
-			message.seenByUser = true;
-			await messageStore.updateMessage(message);
-			getAllSockets(io, message).forEach((s) => s.emit("message seen", message));
+			const { to } = message;
+			const toSockets = getUserSockets(io, to);
+			toSockets.forEach((s) => s.emit("message", message));
 		});
 	});
-
-	// messageStore.setReachedToUser(socket.user.id);
 };
-
-function getAllSockets(io, message) {
-	const { to, from } = message;
-	const toSockets = getUserSockets(io, to);
-	const fromSockets = getUserSockets(io, from);
-
-	return [...toSockets, ...fromSockets];
-}
