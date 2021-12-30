@@ -10,10 +10,15 @@ const messageStore = require("../utils/message-store");
 
 router.post("/login", async (req, res) => {
 	const user = req.body;
-	user.profileObj.id = user.profileObj.googleId;
-	user.profileObj.username = user.profileObj.name;
-	await userStore.add(user.profileObj);
-	res.send(user.profileObj);
+	const userDetails = {
+		...user.profileObj,
+		id: user.profileObj.googleId,
+		username: user.profileObj.name,
+		token: user.tokenId,
+	};
+
+	await userStore.add(userDetails);
+	res.send(userDetails);
 });
 
 // router.get("/conversations/:id", async (req, res) => {

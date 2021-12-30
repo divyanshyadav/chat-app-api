@@ -4,13 +4,11 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-
 const usersRouter = require("./routes/users.routes");
-
 const registerUserHandlers = require("./handlers/userHandler");
 const registerMessageHandlers = require("./handlers/messageHandler");
-
 const { client } = require("./utils/mongodb");
+const { isGoogleTokenValid } = require("./utils/oauth");
 
 const PORT = process.env.PORT || 3000;
 
@@ -23,10 +21,12 @@ app.use(bodyParser.json());
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
-io.use((socket, next) => {
+io.use(async (socket, next) => {
 	const user = socket.handshake.auth;
-	if (!user) {
-		return next(new Error("Invalid user"));
+	const isValid = await isGoogleTokenValid(user.token);
+
+	if (!isValid) {
+		next(new Error("Invalid token"));
 	}
 
 	socket.user = user;
