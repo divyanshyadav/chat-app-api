@@ -5,6 +5,7 @@ module.exports = function registerUserHandlers(io, socket) {
 	async function onUserDisconnect() {
 		log(socket, "disconnected");
 		await userStore.setOffline(socket.user.id);
+		await userStore.setLastSeen(socket.user.id, new Date().getTime());
 		socket.broadcast.emit(
 			"user disconnect",
 			await userStore.getUser(socket.user.id)

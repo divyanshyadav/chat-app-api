@@ -60,6 +60,24 @@ class UserStore {
 		});
 	}
 
+	setLastSeen(userId, timestamp) {
+		return new Promise((resolve, reject) => {
+			this.users.updateOne(
+				{ id: userId },
+				{ $set: { lastSeen: timestamp } },
+				(err, result) => {
+					if (err) {
+						reject(err);
+						console.error(err);
+						return;
+					}
+
+					resolve(result);
+				}
+			);
+		});
+	}
+
 	getUser(userId) {
 		return new Promise((resolve, reject) => {
 			this.users.findOne({ id: userId }, (err, result) => {
