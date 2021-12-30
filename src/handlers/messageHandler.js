@@ -2,14 +2,6 @@ const messageStore = require("../utils/message-store");
 const { getUserSockets } = require("../utils/socketUtils");
 
 module.exports = function registerMessageHandlers(io, socket) {
-	socket.on("message ack", async (message) => {
-		await messageStore.updateMessage(message);
-		const fromSockets = getUserSockets(io, message.from);
-		fromSockets.forEach((socket) => {
-			socket.emit("message ack", message);
-		});
-	});
-
 	socket.on("message", async function (message, callback) {
 		const { to, from } = message;
 		const toSockets = getUserSockets(io, to);
@@ -22,6 +14,14 @@ module.exports = function registerMessageHandlers(io, socket) {
 		callback(message);
 	});
 
+	socket.on("message ack", async (message) => {
+		await messageStore.updateMessage(message);
+		const fromSockets = getUserSockets(io, message.from);
+		fromSockets.forEach((socket) => {
+			socket.emit("message ack", message);
+		});
+	});
+
 	socket.on("message seen", async function (message) {
 		message.seenByUser = true;
 		await messageStore.updateMessage(message);
@@ -30,11 +30,10 @@ module.exports = function registerMessageHandlers(io, socket) {
 		);
 	});
 
-	messageStore.getUnReachedMessages(socket.user.id).then((messages) => {
-		messages.forEach(async (message) => {
-			const { to } = message;
-			const toSockets = getUserSockets(io, to);
-			toSockets.forEach((s) => s.emit("message", message));
-		});
+	setTimeout(async () => {
+		socket.emit(
+			"conversations",
+			await messageStore.getConversations(socket.user.id)
+		);
 	});
 };

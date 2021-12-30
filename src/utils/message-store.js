@@ -53,15 +53,20 @@ class MessageStore {
 
 	getMessages(condition) {
 		return new Promise((resolve, reject) => {
-			this.messages.find(condition).toArray((err, docs) => {
-				if (err) {
-					console.error(err);
-					reject(err);
-					return;
-				}
+			this.messages
+				.find(condition)
+				.sort({
+					timestamp: 1,
+				})
+				.toArray((err, docs) => {
+					if (err) {
+						console.error(err);
+						reject(err);
+						return;
+					}
 
-				resolve(docs);
-			});
+					resolve(docs);
+				});
 		});
 	}
 
