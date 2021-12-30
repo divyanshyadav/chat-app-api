@@ -4,5 +4,9 @@
 
 ```sh
 npm install
-npm start
+npm run start:dev
 ```
+
+## Frontend Setup
+
+https://github.com/divyanshyadav/chat-app
