@@ -1,5 +1,6 @@
 const messageStore = require("../utils/message-store");
 const { getUserSockets } = require("../utils/socketUtils");
+const userStore = require("../utils/user-store");
 
 module.exports = function registerMessageHandlers(io, socket) {
 	socket.on("message", async function (message, callback) {
@@ -31,9 +32,9 @@ module.exports = function registerMessageHandlers(io, socket) {
 	});
 
 	setTimeout(async () => {
-		socket.emit(
-			"conversations",
-			await messageStore.getConversations(socket.user.id)
-		);
+		const conversations = await messageStore.getConversations(socket.user.id);
+		const users = await userStore.getUsers(Object.keys(conversations));
+
+		socket.emit("conversations", { conversations, users });
 	});
 };

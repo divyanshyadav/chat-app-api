@@ -91,9 +91,14 @@ class UserStore {
 		});
 	}
 
-	getUsers() {
+	getUsers(ids = []) {
+		let conditions = {};
+		if (ids.length > 0) {
+			conditions = { id: { $in: ids } };
+		}
+
 		return new Promise((resolve, reject) => {
-			this.users.find({}).toArray((err, result) => {
+			this.users.find(conditions).toArray((err, result) => {
 				if (err) {
 					reject(err);
 					return;
@@ -101,6 +106,27 @@ class UserStore {
 
 				resolve(result);
 			});
+		});
+	}
+
+	findUsers(regex) {
+		return new Promise((resolve, reject) => {
+			this.users
+				.find({
+					$or: [
+						{
+							name: { $regex: `${regex}`, $options: "i" },
+						},
+					],
+				})
+				.toArray((err, result) => {
+					if (err) {
+						reject(err);
+						return;
+					}
+
+					resolve(result);
+				});
 		});
 	}
 }
