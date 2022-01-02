@@ -1,8 +1,17 @@
 const express = require("express");
+const { isGoogleTokenValid } = require("../utils/oauth");
 const router = express.Router();
 const userStore = require("../utils/user-store");
 
 router.get("/", async (req, res) => {
+	const isValid = await isGoogleTokenValid(
+		req.headers.authorization.split(" ")[1]
+	);
+
+	if (!isValid) {
+		next(new Error("Invalid token"));
+	}
+
 	const { search } = req.query;
 
 	if (!search) {
