@@ -115,7 +115,7 @@ class UserStore {
 				.find({
 					$or: [
 						{
-							name: { $regex: `${regex}`, $options: "i" },
+							name: { $regex: `^${regex}`, $options: "i" },
 						},
 					],
 				})
