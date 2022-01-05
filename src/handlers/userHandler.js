@@ -24,8 +24,4 @@ module.exports = function registerUserHandlers(io, socket) {
 	socket.on("user connect", onUserConnect);
 	socket.on("user disconnect", onUserDisconnect);
 	socket.on("disconnect", onUserDisconnect);
-
-	setTimeout(async () => {
-		socket.emit("users", await userStore.getUsers());
-	});
 };
