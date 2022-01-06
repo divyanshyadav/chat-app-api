@@ -109,16 +109,17 @@ class UserStore {
 		});
 	}
 
-	findUsers(regex) {
+	findUsers(prefix, limit = 0) {
 		return new Promise((resolve, reject) => {
 			this.users
 				.find({
 					$or: [
 						{
-							name: { $regex: `^${regex}`, $options: "i" },
+							name: { $regex: `^${prefix}`, $options: "i" },
 						},
 					],
 				})
+				.limit(limit)
 				.toArray((err, result) => {
 					if (err) {
 						reject(err);

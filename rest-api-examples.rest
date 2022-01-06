@@ -1,2 +1,2 @@
-GET http://localhost:3000/users?search=
+GET http://localhost:3000/users?search=d
 

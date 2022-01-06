@@ -3,10 +3,10 @@ const { isGoogleTokenValid } = require("../utils/oauth");
 const router = express.Router();
 const userStore = require("../utils/user-store");
 
-router.get("/", async (req, res) => {
-	const isValid = await isGoogleTokenValid(
-		req.headers.authorization.split(" ")[1]
-	);
+router.get("/", async (req, res, next) => {
+	const token =
+		req.headers.authorization && req.headers.authorization.split(" ")[1];
+	const isValid = await isGoogleTokenValid(token);
 
 	if (!isValid) {
 		next(new Error("Invalid token"));
@@ -19,8 +19,12 @@ router.get("/", async (req, res) => {
 		return;
 	}
 
-	const users = await userStore.findUsers(search);
-	res.send(users);
+	try {
+		let users = await userStore.findUsers(search, 5);
+		res.send(users);
+	} catch (e) {
+		next(e);
+	}
 });
 
 router.post("/login", async (req, res) => {
